@@ -1,1 +1,1 @@
-odoo-shopinvader https://github.com/shopinvader/odoo-shopinvader
+odoo-shopinvader https://github.com/akretion/odoo-shopinvader 10.0-refactor-code

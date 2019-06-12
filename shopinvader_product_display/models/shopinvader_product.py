@@ -19,7 +19,8 @@ class ShopinvaderProduct(models.Model):
         compute="_compute_available_attribute",
     )
     attribute_identifier = fields.Char(
-        compute="_compute_attribute_indentifier"
+        compute="_compute_attribute_identifier",
+        store=True
     )
     model_id = fields.Integer(
         compute="_compute_model_id", store=True, index=True
@@ -41,15 +42,18 @@ class ShopinvaderProduct(models.Model):
     @api.depends("backend_id", "record_id.attribute_line_ids.value_ids")
     def _compute_available_attribute(self):
         for rec in self:
-            rec.available_attribute_value_ids = rec.record_id.mapped(
-                "attribute_line_ids.value_ids"
-            )
+            rec.available_attribute_value_ids =\
+                self.env['product.attribute.value'].browse(False)
+            for value in rec.record_id.mapped("attribute_line_ids.value_ids"):
+                if value.attribute_id.use_for_display:
+                    rec.available_attribute_value_ids |= value
 
+    @api.depends('display_value_ids')
     def _compute_attribute_identifier(self):
         for record in self:
             ids = record.display_value_ids.ids
             ids.sort()
-            record.attribute_identifier = ",".join(ids)
+            record.attribute_identifier = ",".join([str(x) for x in ids])
 
     def _get_variants(self):
         variants = super(ShopinvaderProduct, self)._get_variants()

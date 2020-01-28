@@ -13,16 +13,17 @@ class InvaderCustomerService(Component):
 
     def sign_in(self, **params):
         Ldap = self.env["res.company.ldap"]
-        self.work.partner = self.env["shopinvader.partner"].search(
+        partner = self.env["shopinvader.partner"].search(
             [("email", "=", params["login"])]
         )
-        if len(self.partner) != 1:
+        if len(partner) != 1:
             raise UserError(
                 _(
                     "Impossible to log in. Either your password is wrong "
                     "or your account does not exist."
                 )
             )
+        self.work.partner = partner.record_id
         for conf in Ldap.get_ldap_dicts():
             if Ldap.authenticate(conf, params["login"], params["password"]):
                 return super(InvaderCustomerService, self).sign_in(

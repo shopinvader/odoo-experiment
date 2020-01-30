@@ -31,9 +31,8 @@ class InvaderCustomerService(Component):
         domain = expression.AND([domain, [("email", "=", params["email"])]])
         customer = self.env["shopinvader.partner"].search(domain)
         if len(customer) != 1:
-            raise UserError(
-                _(u"This email address does not correspond to any account")
-            )
+            # Do not reveal if there is an account for this e-mail address
+            return {}
         customer.write(
             {
                 "password_reset_token": uuid.uuid4(),
